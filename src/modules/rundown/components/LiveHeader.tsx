@@ -149,7 +149,7 @@ export default function LiveHeader({
   }
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-[120px] z-50 bg-black/95 backdrop-blur-sm border-b border-white/10">
+    <header className="fixed top-0 left-0 right-0 h-[120px] z-50 bg-black/95 backdrop-blur-sm">
       <div className="h-full px-3 py-2 flex flex-col gap-2">
         {/* Top Row: Back Button, Timer, and Controls */}
         <div className="flex items-center gap-3">

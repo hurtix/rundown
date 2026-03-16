@@ -16,7 +16,15 @@ interface RundownEditPageProps {
 }
 
 function EditPageContent({ rundownId }: { rundownId: string }) {
-  const { rundown, setRundown, setCues, setSegments } = useRundown()
+  const { rundown, setRundown, setCues, setSegments, setActiveRundownId } = useRundown()
+
+  // Set active rundown ID to enable localStorage persistence
+  useEffect(() => {
+    setActiveRundownId(rundownId)
+    return () => {
+      setActiveRundownId(null)
+    }
+  }, [rundownId, setActiveRundownId])
 
   useEffect(() => {
     const loadData = async () => {

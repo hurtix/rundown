@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from "react"
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react"
 import { Rundown, Cue, Segment } from "@/modules/rundown/types"
 
 export type RundownContextType = {
@@ -138,6 +138,41 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
       return prev
     })
   }, [cues])
+
+  // Save progress to localStorage
+  useEffect(() => {
+    if (!activeRundownId || !showStarted) return
+
+    const progressKey = `rundown_progress_${activeRundownId}`
+    const progress = {
+      showStarted,
+      currentCueIndex,
+      remainingSeconds,
+      isPlaying,
+    }
+    localStorage.setItem(progressKey, JSON.stringify(progress))
+  }, [activeRundownId, showStarted, currentCueIndex, remainingSeconds, isPlaying])
+
+  // Restore progress from localStorage when activeRundownId changes
+  useEffect(() => {
+    if (!activeRundownId) return
+
+    const progressKey = `rundown_progress_${activeRundownId}`
+    const savedProgress = localStorage.getItem(progressKey)
+
+    if (savedProgress) {
+      try {
+        const progress = JSON.parse(savedProgress)
+        setShowStarted(progress.showStarted)
+        setCurrentCueIndex(progress.currentCueIndex)
+        setRemainingSeconds(progress.remainingSeconds)
+        setIsPlaying(progress.isPlaying)
+        setIsLiveMode(progress.showStarted)
+      } catch (error) {
+        console.error("Error restoring progress:", error)
+      }
+    }
+  }, [activeRundownId])
 
   const value: RundownContextType = {
     rundown,
