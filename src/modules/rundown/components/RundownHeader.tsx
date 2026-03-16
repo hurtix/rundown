@@ -17,7 +17,7 @@ export default function RundownHeader({
   onUpdate,
   onDelete,
 }: RundownHeaderProps) {
-  const { startShow, setIsPlaying, isPlaying, remainingSeconds } = useRundown()
+  const { startShow, setIsPlaying, isPlaying, remainingSeconds, isLiveMode, setIsLiveMode } = useRundown()
   const [displayRundown, setDisplayRundown] = useState(rundown)
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState(rundown)
@@ -117,11 +117,12 @@ export default function RundownHeader({
 
   const handleEndShow = () => {
     setIsPlaying(false)
+    setIsLiveMode(false)
   }
 
   return (
     <>
-      {isPlaying && (
+      {isLiveMode && (
         <LiveHeader
           rundownTitle={displayRundown.title}
           elapsedTime={formatElapsedTime(remainingSeconds)}
@@ -132,7 +133,7 @@ export default function RundownHeader({
         />
       )}
 
-      {!isPlaying && (
+      {!isLiveMode && (
         <div className="bg-gray-950 border border-white/30 p-6 rounded-lg">
       <div className="w-full mx-auto space-y-4">
         {isEditing ? (

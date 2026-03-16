@@ -8,6 +8,7 @@ export type RundownContextType = {
   activeRundownId: string | null
   activeCueId: string | null
   isPlaying: boolean
+  isLiveMode: boolean
   remainingSeconds: number
   currentCueIndex: number
 
@@ -32,6 +33,7 @@ export type RundownContextType = {
 
   // Playback actions
   setIsPlaying: (playing: boolean) => void
+  setIsLiveMode: (liveMode: boolean) => void
   setRemainingSeconds: (seconds: number) => void
   setCurrentCueIndex: (index: number) => void
   startShow: () => void
@@ -48,6 +50,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
   const [activeRundownId, setActiveRundownId] = useState<string | null>(null)
   const [activeCueId, setActiveCueId] = useState<string | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
+  const [isLiveMode, setIsLiveMode] = useState(false)
   const [remainingSeconds, setRemainingSeconds] = useState(0)
   const [currentCueIndex, setCurrentCueIndex] = useState(0)
 
@@ -101,6 +104,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
       const firstCueDuration = cues[0].duration_seconds
       setCurrentCueIndex(0)
       setRemainingSeconds(firstCueDuration)
+      setIsLiveMode(true)
       setIsPlaying(true)
     }
   }, [cues])
@@ -112,6 +116,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
     activeRundownId,
     activeCueId,
     isPlaying,
+    isLiveMode,
     remainingSeconds,
     currentCueIndex,
     setRundown,
@@ -128,6 +133,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
     reorderCues,
     setActiveCueId,
     setIsPlaying,
+    setIsLiveMode,
     setRemainingSeconds,
     setCurrentCueIndex,
     startShow,

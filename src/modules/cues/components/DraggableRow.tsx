@@ -252,7 +252,7 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
       <DragHandle id={cue.id} />
 
       {/* Cue Number Column */}
-      <section className={`w-12 flex-none flex items-center justify-center ${getCardBackgroundClass(cue.color)} text-white font-mono text-sm rounded`}>
+      <section className={`w-12 flex-none flex items-center justify-center ${isCurrentCue ? "bg-red-600 animate-pulse" : getCardBackgroundClass(cue.color)} text-white font-mono text-sm rounded font-bold`}>
         {cue.order || 1}
       </section>
 
@@ -306,7 +306,7 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
             onClick={handleOpenDurationPicker}
             className="font-mono text-sm text-white font-bold hover:opacity-80 transition-opacity cursor-pointer"
           >
-            {countdownSeconds !== undefined ? `${countdownSeconds}s` : formatDuration(cue.duration_seconds)}
+            {countdownSeconds !== undefined ? formatDuration(countdownSeconds) : formatDuration(cue.duration_seconds)}
           </button>
           {showDurationPicker && (
             <div
