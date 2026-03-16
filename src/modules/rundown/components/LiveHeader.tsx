@@ -1,7 +1,9 @@
 "use client"
 
 import React, { useState, useRef, useEffect } from "react"
-import { Play, Pause, RotateCcw, ChevronDown } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { Play, Pause, ArrowLeft, SkipBack, SkipForward, RotateCcw } from "lucide-react"
+import { useRundown } from "@/context/RundownContext"
 
 interface LiveHeaderProps {
   rundownTitle: string
@@ -9,9 +11,10 @@ interface LiveHeaderProps {
   isPlaying: boolean
   onPlayPause: () => void
   onReset: () => void
-  onEndShow: () => void
+  onStartShow: () => void
   currentCueDuration: number
   remainingSeconds: number
+  totalDuration: number
 }
 
 export default function LiveHeader({
@@ -20,11 +23,15 @@ export default function LiveHeader({
   isPlaying,
   onPlayPause,
   onReset,
-  onEndShow,
+  onStartShow,
   currentCueDuration,
   remainingSeconds,
+  totalDuration,
 }: LiveHeaderProps) {
+  const router = useRouter()
+  const { showStarted, cues, currentCueIndex, goToNextCue, goToPreviousCue } = useRundown()
   const [smoothProgress, setSmoothProgress] = useState(0)
+  const [currentTime, setCurrentTime] = useState<string>("")
   const lastUpdateTimeRef = useRef<number>(Date.now())
   const lastRemainingSecondsRef = useRef<number>(remainingSeconds)
 
@@ -62,14 +69,86 @@ export default function LiveHeader({
     lastRemainingSecondsRef.current = remainingSeconds
   }, [remainingSeconds])
 
+  // Update current time with GMT-5
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date()
+      // Convert to GMT-5 (UTC-5)
+      const gmt5Time = new Date(now.toLocaleString('en-US', { timeZone: 'America/Bogota' }))
+      const hours = gmt5Time.getHours()
+      const minutes = gmt5Time.getMinutes()
+      const seconds = gmt5Time.getSeconds()
+      const ampm = hours >= 12 ? 'PM' : 'AM'
+      const displayHours = hours % 12 || 12
+      
+      setCurrentTime(
+        `${displayHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${ampm}`
+      )
+    }
+    updateTime()
+    const interval = setInterval(updateTime, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
+  const handleStartShow = () => {
+    onStartShow()
+  }
+
+  const formatDuration = (seconds: number) => {
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const s = seconds % 60
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+  }
+
+  const getElapsedDuration = () => {
+    if (!showStarted || cues.length === 0) return 0
+    
+    // Sum duration of all cues before current cue
+    let elapsedTime = 0
+    for (let i = 0; i < currentCueIndex; i++) {
+      elapsedTime += cues[i]?.duration_seconds || 0
+    }
+    
+    // Add the elapsed time of current cue (total duration - remaining)
+    const currentCueDurationTotal = cues[currentCueIndex]?.duration_seconds || 0
+    elapsedTime += currentCueDurationTotal - remainingSeconds
+    
+    return elapsedTime
+  }
+
+  const getRemainingDuration = () => {
+    if (cues.length === 0) return 0
+    
+    // If show hasn't started, return total duration
+    if (!showStarted) {
+      return totalDuration
+    }
+    
+    // Sum duration of all cues after current cue
+    let remainingTime = 0
+    for (let i = currentCueIndex + 1; i < cues.length; i++) {
+      remainingTime += cues[i]?.duration_seconds || 0
+    }
+    
+    // Add the remaining time of current cue
+    remainingTime += remainingSeconds
+    
+    return remainingTime
+  }
+
   return (
     <header className="fixed top-0 left-0 right-0 h-[120px] z-50 bg-black/95 backdrop-blur-sm border-b border-white/10">
       <div className="h-full px-3 py-2 flex flex-col gap-2">
-        {/* Top Row: Collapse, Timer, and Controls */}
+        {/* Top Row: Back Button, Timer, and Controls */}
         <div className="flex items-center gap-3">
-          {/* Collapse Button */}
-          <button className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-white transition-colors">
-            <ChevronDown className="w-5 h-5" />
+          {/* Back Button */}
+          <button 
+            onClick={() => router.push('/rundowns')}
+            className="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-white transition-colors"
+            title="Back to Rundowns"
+          >
+            <ArrowLeft className="w-5 h-5" />
           </button>
 
           {/* Live Indicator + Timer */}
@@ -82,74 +161,100 @@ export default function LiveHeader({
 
           {/* Control Buttons */}
           <div className="flex gap-1 items-center ml-4">
-            {/* -1m Button */}
-            <button
-              disabled
-              className="px-3 py-1 bg-gray-900 text-gray-400 text-xs rounded transition-colors opacity-50 cursor-not-allowed"
-            >
-              -1m
-            </button>
+            {!showStarted ? (
+              // Before show starts: only Start Show button
+              <button
+                onClick={handleStartShow}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center gap-2 transition-colors font-semibold text-sm"
+              >
+                <Play className="w-4 h-4" /> Start Show
+              </button>
+            ) : (
+              // After show starts: Play/Pause, Previous Cue, Next Cue
+              <>
+                {/* Prev Cue Button - Enabled only if not on first cue */}
+                <button
+                  onClick={goToPreviousCue}
+                  disabled={currentCueIndex === 0}
+                  className={`px-4 py-2 rounded flex items-center gap-2 transition-colors font-semibold text-sm ${
+                    currentCueIndex === 0
+                      ? "bg-gray-800 text-gray-600 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                >
+                  <SkipBack className="w-5 h-5" />
+                </button>
 
-            {/* Play/Pause Button */}
-            <button
-              onClick={onPlayPause}
-              className={`px-4 py-2 rounded flex items-center gap-2 transition-colors font-semibold text-sm ${
-                isPlaying
-                  ? "bg-yellow-600 hover:bg-yellow-700 text-white"
-                  : "bg-emerald-600 hover:bg-emerald-700 text-white"
-              }`}
-            >
-              {isPlaying ? (
-                <>
-                  <Pause className="w-4 h-4" /> Pause
-                </>
-              ) : (
-                <>
-                  <Play className="w-4 h-4" /> Resume
-                </>
-              )}
-            </button>
+                {currentCueIndex >= cues.length - 1 && remainingSeconds === 0 ? (
+                  // Show finished: Reset Show button
+                  <button
+                    onClick={onReset}
+                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded flex items-center gap-2 transition-colors font-semibold text-sm"
+                  >
+                    <RotateCcw className="w-4 h-4" /> Reset Show
+                  </button>
+                ) : (
+                  // Show in progress: Pause/Resume button
+                  <button
+                    onClick={onPlayPause}
+                    className={`px-4 py-2 rounded flex items-center gap-2 transition-colors font-semibold text-sm ${
+                      isPlaying
+                        ? "bg-yellow-600 hover:bg-yellow-700 text-white"
+                        : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                    }`}
+                  >
+                    {isPlaying ? (
+                      <>
+                        <Pause className="w-4 h-4" /> Pause
+                      </>
+                    ) : (
+                      <>
+                        <Play className="w-4 h-4" /> Resume
+                      </>
+                    )}
+                  </button>
+                )}
 
-            {/* Previous/Backward Button */}
-            <button
-              disabled
-              className="px-3 py-1 bg-gray-900 text-gray-400 text-xs rounded transition-colors opacity-50 cursor-not-allowed"
-            >
-              ⏮
-            </button>
-
-            {/* Reset Button */}
-            <button
-              onClick={onReset}
-              className="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded flex items-center gap-2 transition-colors font-semibold text-sm"
-            >
-              <RotateCcw className="w-4 h-4" /> Reset
-            </button>
-
-            {/* +1m Button */}
-            <button
-              disabled
-              className="px-3 py-1 bg-gray-900 text-gray-400 text-xs rounded transition-colors opacity-50 cursor-not-allowed"
-            >
-              +1m
-            </button>
+                {/* Next Cue Button - Enabled only if not on last cue */}
+                <button
+                  onClick={goToNextCue}
+                  disabled={currentCueIndex >= cues.length - 1}
+                  className={`px-4 py-2 rounded flex items-center gap-2 transition-colors font-semibold text-sm ${
+                    currentCueIndex >= cues.length - 1
+                      ? "bg-gray-800 text-gray-600 cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}
+                >
+                  <SkipForward className="w-4 h-4" /> Next Cue
+                </button>
+              </>
+            )}
+            <div className="flex gap-4 ps-6">
+                <div className="flex flex-col text-gray-500 whitespace-nowrap">
+                    <span className="text-xs">Showtime Progress</span>
+                    <span className="font-mono font-semibold text-gray-300">
+                      <span className="text-emerald-400">{formatDuration(getElapsedDuration())}</span>
+                      <span className="text-gray-500">/</span>
+                      <span className="text-amber-400">{formatDuration(getRemainingDuration())}</span>
+                    </span>
+                </div>
+                <div className="flex flex-col text-gray-500 whitespace-nowrap">
+                    <span className="text-xs">Time of day (COT)</span>
+                    <span className="font-mono font-semibold text-gray-300">{currentTime}</span>
+                </div>
+            </div>
           </div>
 
           {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Show Info */}
-          <div className="text-sm text-gray-400">
-            <span className="font-semibold">{rundownTitle}</span>
+          {/* Show Info, Total Duration, and Current Time */}
+          <div className="flex items-center gap-4">
+            <div className="text-sm text-gray-400 whitespace-nowrap">
+              <span className="font-semibold">{rundownTitle}</span>
+            </div>
+           
           </div>
-
-          {/* End Show Button */}
-          <button
-            onClick={onEndShow}
-            className="px-4 py-2 bg-red-900 hover:bg-red-800 text-white rounded text-sm font-semibold transition-colors"
-          >
-            End show
-          </button>
         </div>
 
         {/* Progress Bar - Fixed Gradient with Moving Indicator */}

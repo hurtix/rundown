@@ -8,7 +8,6 @@ import { RundownProvider, useRundown } from "@/context/RundownContext"
 import RundownHeader from "@/modules/rundown/components/RundownHeader"
 import { CueDataTable } from "@/modules/cues/components/CueDataTable"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 interface RundownEditPageProps {
   params: {
@@ -18,7 +17,6 @@ interface RundownEditPageProps {
 
 function EditPageContent({ rundownId }: { rundownId: string }) {
   const { rundown, setRundown, setCues, setSegments } = useRundown()
-  const router = useRouter()
 
   useEffect(() => {
     const loadData = async () => {
@@ -56,11 +54,7 @@ function EditPageContent({ rundownId }: { rundownId: string }) {
       <div className="flex-1 flex flex-col">
         <div className="p-8 flex-shrink-0 border-b border-slate-800">
           {rundown ? (
-            <RundownHeader
-              rundown={rundown}
-              onUpdate={setRundown}
-              onDelete={() => router.push("/rundowns")}
-            />
+            <RundownHeader rundown={rundown} />
           ) : (
             <div className="text-slate-400">Loading rundown...</div>
           )}

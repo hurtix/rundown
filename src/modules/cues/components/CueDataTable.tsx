@@ -29,7 +29,7 @@ interface CueDataTableProps {
 }
 
 export function CueDataTable({ rundownId }: CueDataTableProps) {
-  const { cues, rundown, addCue, deleteCue: deleteCueLocal, reorderCues: reorderCuesLocal, updateCue: updateCueLocal, isPlaying, remainingSeconds, setRemainingSeconds, currentCueIndex, setCurrentCueIndex } = useRundown()
+  const { cues, rundown, addCue, deleteCue: deleteCueLocal, reorderCues: reorderCuesLocal, updateCue: updateCueLocal, isPlaying, remainingSeconds, setRemainingSeconds, currentCueIndex, setCurrentCueIndex, showStarted } = useRundown()
   const { formatSeconds, getTotalDuration } = useCueCalculations()
 
   const [data, setData] = useState<typeof cues>([])
@@ -54,7 +54,7 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
     if (!isPlaying || remainingSeconds <= 0) return
 
     const interval = setInterval(() => {
-      setRemainingSeconds((prev) => Math.max(0, prev - 1))
+      setRemainingSeconds(Math.max(0, remainingSeconds - 1))
     }, 1000)
 
     return () => clearInterval(interval)
@@ -272,10 +272,10 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
                           allCues={data}
                           onDelete={() => handleDeleteCue(cue.id)}
                           onUpdate={updateCueLocal}
-                          isCurrentCue={index === currentCueIndex && remainingSeconds > 0}
-                          isNextCue={index === currentCueIndex + 1}
-                          isPassed={index < currentCueIndex || (index === currentCueIndex && remainingSeconds === 0)}
-                          countdownSeconds={index === currentCueIndex && isPlaying ? remainingSeconds : undefined}
+                          isCurrentCue={showStarted && index === currentCueIndex && remainingSeconds > 0}
+                          isNextCue={showStarted && index === currentCueIndex + 1}
+                          isPassed={showStarted && (index < currentCueIndex || (index === currentCueIndex && remainingSeconds === 0))}
+                          countdownSeconds={showStarted && index === currentCueIndex && isPlaying ? remainingSeconds : undefined}
                         />
                       </div>
                     ))}

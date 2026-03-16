@@ -11,6 +11,7 @@ export type RundownContextType = {
   isLiveMode: boolean
   remainingSeconds: number
   currentCueIndex: number
+  showStarted: boolean
 
   // Rundown actions
   setRundown: (rundown: Rundown) => void
@@ -36,7 +37,10 @@ export type RundownContextType = {
   setIsLiveMode: (liveMode: boolean) => void
   setRemainingSeconds: (seconds: number) => void
   setCurrentCueIndex: (index: number) => void
+  setShowStarted: (started: boolean) => void
   startShow: () => void
+  goToNextCue: () => void
+  goToPreviousCue: () => void
 }
 
 const RundownContext = createContext<RundownContextType | undefined>(undefined)
@@ -53,6 +57,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
   const [isLiveMode, setIsLiveMode] = useState(false)
   const [remainingSeconds, setRemainingSeconds] = useState(0)
   const [currentCueIndex, setCurrentCueIndex] = useState(0)
+  const [showStarted, setShowStarted] = useState(false)
 
   // Segment actions
   const addSegment = useCallback((segment: Segment) => {
@@ -106,7 +111,32 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
       setRemainingSeconds(firstCueDuration)
       setIsLiveMode(true)
       setIsPlaying(true)
+      setShowStarted(true)
     }
+  }, [cues])
+
+  const goToNextCue = useCallback(() => {
+    setCurrentCueIndex((prev) => {
+      const nextIndex = prev + 1
+      if (nextIndex < cues.length) {
+        const nextCueDuration = cues[nextIndex].duration_seconds
+        setRemainingSeconds(nextCueDuration)
+        return nextIndex
+      }
+      return prev
+    })
+  }, [cues])
+
+  const goToPreviousCue = useCallback(() => {
+    setCurrentCueIndex((prev) => {
+      const prevIndex = prev - 1
+      if (prevIndex >= 0) {
+        const prevCueDuration = cues[prevIndex].duration_seconds
+        setRemainingSeconds(prevCueDuration)
+        return prevIndex
+      }
+      return prev
+    })
   }, [cues])
 
   const value: RundownContextType = {
@@ -119,6 +149,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
     isLiveMode,
     remainingSeconds,
     currentCueIndex,
+    showStarted,
     setRundown,
     setActiveRundownId,
     setSegments,
@@ -136,7 +167,10 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsLiveMode,
     setRemainingSeconds,
     setCurrentCueIndex,
+    setShowStarted,
     startShow,
+    goToNextCue,
+    goToPreviousCue,
   }
 
   return (
