@@ -30,6 +30,8 @@ export default function LiveHeader({
 
   // Update smooth progress with requestAnimationFrame for fluid motion
   useEffect(() => {
+    if (!isPlaying) return // Don't animate if not playing
+
     let animationFrameId: number
 
     const updateProgress = () => {
@@ -52,7 +54,7 @@ export default function LiveHeader({
 
     animationFrameId = requestAnimationFrame(updateProgress)
     return () => cancelAnimationFrame(animationFrameId)
-  }, [currentCueDuration])
+  }, [currentCueDuration, isPlaying])
 
   // Update refs when remainingSeconds changes
   useEffect(() => {
