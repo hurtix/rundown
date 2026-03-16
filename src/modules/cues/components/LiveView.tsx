@@ -109,6 +109,7 @@ export default function LiveView({ cues }: LiveViewProps) {
         <div className="max-w-2xl mx-auto space-y-2">
           {sortedCues.map((cue, index) => {
             const isActive = cue.id === activeCueId
+            const isNext = index === activeCueIndex + 1
             const isPassed = index < activeCueIndex
 
             return (
@@ -116,17 +117,31 @@ export default function LiveView({ cues }: LiveViewProps) {
                 key={cue.id}
                 data-cue-id={cue.id}
                 onClick={() => handleStartCue(cue.id)}
-                className={`p-4 rounded-lg cursor-pointer transition ${
+                className={`p-4 rounded-lg cursor-pointer transition relative ${
                   isActive
-                    ? "bg-blue-600 ring-2 ring-blue-400 shadow-lg"
+                    ? "bg-green-600 ring-2 ring-green-400 shadow-lg"
+                    : isNext
+                    ? "bg-yellow-600 ring-2 ring-yellow-400 shadow-lg"
                     : isPassed
                     ? "bg-gray-700 text-gray-400"
                     : "bg-gray-800 hover:bg-gray-700"
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-gray-300">Cue {index + 1}</div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-sm text-gray-300">Cue {index + 1}</span>
+                      {isActive && (
+                        <span className="px-2 py-0.5 bg-green-700 text-green-100 text-xs font-bold rounded">
+                          CURRENT
+                        </span>
+                      )}
+                      {isNext && (
+                        <span className="px-2 py-0.5 bg-yellow-700 text-yellow-100 text-xs font-bold rounded">
+                          NEXT
+                        </span>
+                      )}
+                    </div>
                     <div className="text-lg font-semibold">{cue.title}</div>
                     {cue.notes && (
                       <div className="text-sm text-gray-400 mt-1">{cue.notes}</div>

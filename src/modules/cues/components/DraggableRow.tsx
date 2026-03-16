@@ -22,9 +22,11 @@ interface DraggableRowProps {
   allCues: Cue[]
   onDelete: () => void
   onUpdate?: (cueId: string, updates: Partial<Cue>) => void
+  isCurrentCue?: boolean
+  isNextCue?: boolean
 }
 
-export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdate }: DraggableRowProps) {
+export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdate, isCurrentCue, isNextCue }: DraggableRowProps) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: cue.id,
   })
@@ -216,6 +218,27 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
   }
 
   return (
+    <div className="relative w-full">
+      {/* Current Cue Indicator */}
+      {isCurrentCue && (
+        <div className="relative">
+          <span className="mt-4 w-full h-1 block bg-[#ef4444] outline-4 outline-black"></span>
+          <span className="absolute -top-[6px] ml-8 text-xs font-bold uppercase text-[#ef4444] bg-black px-2">
+            Current cue
+          </span>
+        </div>
+      )}
+
+      {/* Next Cue Indicator */}
+      {isNextCue && (
+        <div className="relative">
+          <span className="mt-1 mb-4 w-full h-[2px] block bg-gray-400 outline-4 outline-black"></span>
+          <span className="absolute -top-[6px] ml-8 text-xs font-bold uppercase text-gray-300 bg-black px-2">
+            Next cue
+          </span>
+        </div>
+      )}
+
     <div
       ref={setNodeRef}
       style={style}
@@ -518,6 +541,7 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
           </div>
         </div>
       )}
+    </div>
     </div>
   )
 }

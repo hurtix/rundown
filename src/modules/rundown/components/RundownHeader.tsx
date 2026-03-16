@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import { Rundown } from "@/modules/rundown/types"
 import { updateRundown, deleteRundown } from "@/server/rundownActions"
-import Link from "next/link"
+import LiveHeader from "./LiveHeader"
 
 interface RundownHeaderProps {
   rundown: Rundown
@@ -25,6 +25,11 @@ export default function RundownHeader({
   const [pickerMinutes, setPickerMinutes] = useState('00')
   const [pickerSeconds, setPickerSeconds] = useState('00')
   const [pickerAmPm, setPickerAmPm] = useState<'AM' | 'PM'>('AM')
+
+  // Live mode state
+  const [isLive, setIsLive] = useState(false)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
   // Sync local display state with prop changes
   useEffect(() => {
@@ -93,8 +98,49 @@ export default function RundownHeader({
     }
   }
 
+  // Live mode handlers
+  const formatElapsedTime = (seconds: number) => {
+    const h = Math.floor(seconds / 3600)
+    const m = Math.floor((seconds % 3600) / 60)
+    const s = seconds % 60
+    return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`
+  }
+
+  const handleStartShow = () => {
+    setIsLive(true)
+    setIsPlaying(true)
+    setElapsedSeconds(0)
+  }
+
+  const handlePlayPause = () => {
+    setIsPlaying(!isPlaying)
+  }
+
+  const handleReset = () => {
+    setElapsedSeconds(0)
+    setIsPlaying(false)
+  }
+
+  const handleEndShow = () => {
+    setIsLive(false)
+    setIsPlaying(false)
+  }
+
   return (
-    <div className="bg-gray-950 border border-white/30 p-6 rounded-lg">
+    <>
+      {isLive && (
+        <LiveHeader
+          rundownTitle={displayRundown.title}
+          elapsedTime={formatElapsedTime(elapsedSeconds)}
+          isPlaying={isPlaying}
+          onPlayPause={handlePlayPause}
+          onReset={handleReset}
+          onEndShow={handleEndShow}
+        />
+      )}
+
+      {!isLive && (
+        <div className="bg-gray-950 border border-white/30 p-6 rounded-lg">
       <div className="w-full mx-auto space-y-4">
         {isEditing ? (
           <>
@@ -273,12 +319,12 @@ export default function RundownHeader({
               >
                 Edit
               </button>
-              <Link
-                href={`/rundowns/${displayRundown.id}/live`}
-                className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded font-medium transition-colors"
+              <button
+                onClick={handleStartShow}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-medium transition-colors"
               >
-                Go Live
-              </Link>
+                Start show
+              </button>
               <button
                 onClick={handleDelete}
                 className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded font-medium transition-colors"
@@ -289,6 +335,8 @@ export default function RundownHeader({
           </>
         )}
       </div>
-    </div>
+        </div>
+      )}
+    </>
   )
 }

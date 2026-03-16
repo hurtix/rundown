@@ -10,7 +10,3 @@ export type { ColumnConfig } from "./ColumnManager"
 // For backwards compatibility, export CueListHorizontal as CueTable
 export { default as CueTable } from "./CueListHorizontal"
 export { default as CueRow } from "./CueCard"
-
-// Live view components
-export { default as LiveView } from "./LiveView"
-export { default as LiveControls } from "./LiveControls"

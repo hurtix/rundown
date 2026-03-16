@@ -222,7 +222,7 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
                     items={dataIds}
                     strategy={verticalListSortingStrategy}
                   >
-                    {data.map((cue) => (
+                    {data.map((cue, index) => (
                       <DraggableRow
                         key={cue.id}
                         cue={cue}
@@ -230,6 +230,8 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
                         allCues={data}
                         onDelete={() => handleDeleteCue(cue.id)}
                         onUpdate={updateCueLocal}
+                        isCurrentCue={index === 0}
+                        isNextCue={index === 1}
                       />
                     ))}
                   </SortableContext>
