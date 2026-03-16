@@ -141,7 +141,13 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
     const h = Math.floor(seconds / 3600)
     const m = Math.floor((seconds % 3600) / 60)
     const s = seconds % 60
-    return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`
+
+    const parts = []
+    if (h > 0) parts.push(`${h}h`)
+    if (m > 0) parts.push(`${m}m`)
+    if (s > 0 || parts.length === 0) parts.push(`${s}s`)
+    
+    return parts.join(" ")
   }
 
   const calculateStartTime = () => {
@@ -213,7 +219,7 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
     <div
       ref={setNodeRef}
       style={style}
-      className={`${isDragging ? "relative" : "static"} bg-transparent flex gap-1 p-0.5 items-stretch min-h-[84px] w-full min-w-full transition-all duration-200 rounded ${
+      className={`${isDragging ? "relative" : "static"} bg-transparent flex gap-1 p-2 items-stretch min-h-[84px] w-full min-w-full transition-all duration-200 rounded ${
         isDragging ? "opacity-50 border-slate-600 z-10" : "border-slate-700"
       }`}
     >

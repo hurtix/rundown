@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react"
 import { X } from "lucide-react"
+import { Badge } from "@/components/ui/badge"
 
 interface EditableProductionFieldProps {
   value: string | null
@@ -95,16 +96,13 @@ export function EditableProductionField({
       {!isEditing ? (
         <div
           onClick={() => setIsEditing(true)}
-          className="min-h-[40px] p-2 cursor-pointer hover:bg-slate-700/50 rounded transition-colors flex flex-wrap gap-1 items-center"
+          className="min-h-[40px] p-2 cursor-pointer hover:bg-slate-700/50 rounded transition-colors flex flex-wrap gap-2 items-center"
         >
           {items.length > 0 ? (
             items.map((item) => (
-              <span
-                key={item}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-white text-black text-xs rounded font-medium"
-              >
+              <Badge key={item} variant="secondary" className="bg-white text-black hover:bg-slate-100">
                 {item}
-              </span>
+              </Badge>
             ))
           ) : (
             <span className="text-xs text-slate-400">{placeholder}</span>
@@ -112,20 +110,17 @@ export function EditableProductionField({
         </div>
       ) : (
         <div className="p-2 space-y-2">
-          <div className="flex flex-wrap gap-1 mb-2">
+          <div className="flex flex-wrap gap-2 mb-2">
             {items.map((item) => (
-              <div
-                key={item}
-                className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-900 text-white text-xs rounded font-medium"
-              >
-                {item}
+              <Badge key={item} variant="default" className="bg-emerald-600 hover:bg-emerald-700 pl-3 pr-1.5 py-1">
+                <span className="mr-1">{item}</span>
                 <button
                   onClick={() => handleRemoveItem(item)}
                   className="hover:opacity-70 transition-opacity"
                 >
                   <X className="w-3 h-3" />
                 </button>
-              </div>
+              </Badge>
             ))}
           </div>
 
