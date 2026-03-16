@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from "react"
 import { Rundown } from "@/modules/rundown/types"
 import { updateRundown, deleteRundown } from "@/server/rundownActions"
+import { useRundown } from "@/context/RundownContext"
 import LiveHeader from "./LiveHeader"
 
 interface RundownHeaderProps {
@@ -16,6 +17,7 @@ export default function RundownHeader({
   onUpdate,
   onDelete,
 }: RundownHeaderProps) {
+  const { startShow, setIsPlaying, isPlaying, remainingSeconds } = useRundown()
   const [displayRundown, setDisplayRundown] = useState(rundown)
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState(rundown)
@@ -25,11 +27,6 @@ export default function RundownHeader({
   const [pickerMinutes, setPickerMinutes] = useState('00')
   const [pickerSeconds, setPickerSeconds] = useState('00')
   const [pickerAmPm, setPickerAmPm] = useState<'AM' | 'PM'>('AM')
-
-  // Live mode state
-  const [isLive, setIsLive] = useState(false)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [elapsedSeconds, setElapsedSeconds] = useState(0)
 
   // Sync local display state with prop changes
   useEffect(() => {
@@ -107,9 +104,7 @@ export default function RundownHeader({
   }
 
   const handleStartShow = () => {
-    setIsLive(true)
-    setIsPlaying(true)
-    setElapsedSeconds(0)
+    startShow()
   }
 
   const handlePlayPause = () => {
@@ -117,21 +112,19 @@ export default function RundownHeader({
   }
 
   const handleReset = () => {
-    setElapsedSeconds(0)
     setIsPlaying(false)
   }
 
   const handleEndShow = () => {
-    setIsLive(false)
     setIsPlaying(false)
   }
 
   return (
     <>
-      {isLive && (
+      {isPlaying && (
         <LiveHeader
           rundownTitle={displayRundown.title}
-          elapsedTime={formatElapsedTime(elapsedSeconds)}
+          elapsedTime={formatElapsedTime(remainingSeconds)}
           isPlaying={isPlaying}
           onPlayPause={handlePlayPause}
           onReset={handleReset}
@@ -139,7 +132,7 @@ export default function RundownHeader({
         />
       )}
 
-      {!isLive && (
+      {!isPlaying && (
         <div className="bg-gray-950 border border-white/30 p-6 rounded-lg">
       <div className="w-full mx-auto space-y-4">
         {isEditing ? (

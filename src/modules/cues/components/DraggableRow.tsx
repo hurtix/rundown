@@ -24,9 +24,10 @@ interface DraggableRowProps {
   onUpdate?: (cueId: string, updates: Partial<Cue>) => void
   isCurrentCue?: boolean
   isNextCue?: boolean
+  countdownSeconds?: number
 }
 
-export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdate, isCurrentCue, isNextCue }: DraggableRowProps) {
+export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdate, isCurrentCue, isNextCue, countdownSeconds }: DraggableRowProps) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: cue.id,
   })
@@ -304,7 +305,7 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
             onClick={handleOpenDurationPicker}
             className="font-mono text-sm text-white font-bold hover:opacity-80 transition-opacity cursor-pointer"
           >
-            {formatDuration(cue.duration_seconds)}
+            {countdownSeconds !== undefined ? `${countdownSeconds}s` : formatDuration(cue.duration_seconds)}
           </button>
           {showDurationPicker && (
             <div

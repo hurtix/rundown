@@ -29,7 +29,7 @@ interface CueDataTableProps {
 }
 
 export function CueDataTable({ rundownId }: CueDataTableProps) {
-  const { cues, rundown, addCue, deleteCue: deleteCueLocal, reorderCues: reorderCuesLocal, updateCue: updateCueLocal } = useRundown()
+  const { cues, rundown, addCue, deleteCue: deleteCueLocal, reorderCues: reorderCuesLocal, updateCue: updateCueLocal, isPlaying, remainingSeconds, setRemainingSeconds } = useRundown()
   const { formatSeconds, getTotalDuration } = useCueCalculations()
 
   const [data, setData] = useState<typeof cues>([])
@@ -38,6 +38,17 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
   useEffect(() => {
     setData([...cues].sort((a, b) => a.order - b.order))
   }, [cues])
+
+  // Countdown timer
+  useEffect(() => {
+    if (!isPlaying || remainingSeconds <= 0) return
+
+    const interval = setInterval(() => {
+      setRemainingSeconds((prev) => Math.max(0, prev - 1))
+    }, 1000)
+
+    return () => clearInterval(interval)
+  }, [isPlaying, remainingSeconds, setRemainingSeconds])
 
   const sortableId = React.useId()
   const sensors = useSensors(
@@ -232,6 +243,7 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
                         onUpdate={updateCueLocal}
                         isCurrentCue={index === 0}
                         isNextCue={index === 1}
+                        countdownSeconds={index === 0 && isPlaying ? remainingSeconds : undefined}
                       />
                     ))}
                   </SortableContext>
