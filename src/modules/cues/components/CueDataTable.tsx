@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo, useEffect, useRef } from "react"
 import {
   closestCenter,
   DndContext,
@@ -33,11 +33,21 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
   const { formatSeconds, getTotalDuration } = useCueCalculations()
 
   const [data, setData] = useState<typeof cues>([])
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+  const cueRowsRef = useRef<Map<number, HTMLDivElement>>(new Map())
 
   // Sync local data with context cues
   useEffect(() => {
     setData([...cues].sort((a, b) => a.order - b.order))
   }, [cues])
+
+  // Auto-scroll to current cue
+  useEffect(() => {
+    const currentCueElement = cueRowsRef.current.get(currentCueIndex)
+    if (currentCueElement && scrollContainerRef.current) {
+      currentCueElement.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [currentCueIndex])
 
   // Countdown timer
   useEffect(() => {
@@ -236,7 +246,7 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
             </div>
             
             {/* Rows Container - Only this has overflow */}
-            <div className="flex-1 overflow-x-auto overflow-y-auto">
+            <div ref={scrollContainerRef} className="flex-1 overflow-x-auto overflow-y-auto">
               <DndContext
                 collisionDetection={closestCenter}
                 modifiers={[restrictToVerticalAxis]}
@@ -250,18 +260,24 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
                     strategy={verticalListSortingStrategy}
                   >
                     {data.map((cue, index) => (
-                      <DraggableRow
+                      <div
                         key={cue.id}
-                        cue={cue}
-                        rundownStartTime={rundown?.event_date}
-                        allCues={data}
-                        onDelete={() => handleDeleteCue(cue.id)}
-                        onUpdate={updateCueLocal}
-                        isCurrentCue={index === currentCueIndex}
-                        isNextCue={index === currentCueIndex + 1}
-                        isPassed={index < currentCueIndex}
-                        countdownSeconds={index === currentCueIndex && isPlaying ? remainingSeconds : undefined}
-                      />
+                        ref={(el) => {
+                          if (el) cueRowsRef.current.set(index, el)
+                        }}
+                      >
+                        <DraggableRow
+                          cue={cue}
+                          rundownStartTime={rundown?.event_date}
+                          allCues={data}
+                          onDelete={() => handleDeleteCue(cue.id)}
+                          onUpdate={updateCueLocal}
+                          isCurrentCue={index === currentCueIndex}
+                          isNextCue={index === currentCueIndex + 1}
+                          isPassed={index < currentCueIndex}
+                          countdownSeconds={index === currentCueIndex && isPlaying ? remainingSeconds : undefined}
+                        />
+                      </div>
                     ))}
                   </SortableContext>
                 </div>
