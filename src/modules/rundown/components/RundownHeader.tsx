@@ -17,7 +17,7 @@ export default function RundownHeader({
   onUpdate,
   onDelete,
 }: RundownHeaderProps) {
-  const { startShow, setIsPlaying, isPlaying, remainingSeconds, isLiveMode, setIsLiveMode } = useRundown()
+  const { startShow, setIsPlaying, isPlaying, remainingSeconds, isLiveMode, setIsLiveMode, cues, currentCueIndex } = useRundown()
   const [displayRundown, setDisplayRundown] = useState(rundown)
   const [isEditing, setIsEditing] = useState(false)
   const [editData, setEditData] = useState(rundown)
@@ -120,6 +120,9 @@ export default function RundownHeader({
     setIsLiveMode(false)
   }
 
+  // Calculate current cue duration
+  const currentCueDuration = cues[currentCueIndex]?.duration_seconds || 0
+
   return (
     <>
       {isLiveMode && (
@@ -130,6 +133,8 @@ export default function RundownHeader({
           onPlayPause={handlePlayPause}
           onReset={handleReset}
           onEndShow={handleEndShow}
+          currentCueDuration={currentCueDuration}
+          remainingSeconds={remainingSeconds}
         />
       )}
 
