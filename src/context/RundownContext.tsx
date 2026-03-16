@@ -9,6 +9,7 @@ export type RundownContextType = {
   activeCueId: string | null
   isPlaying: boolean
   remainingSeconds: number
+  currentCueIndex: number
 
   // Rundown actions
   setRundown: (rundown: Rundown) => void
@@ -32,6 +33,7 @@ export type RundownContextType = {
   // Playback actions
   setIsPlaying: (playing: boolean) => void
   setRemainingSeconds: (seconds: number) => void
+  setCurrentCueIndex: (index: number) => void
   startShow: () => void
 }
 
@@ -47,6 +49,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
   const [activeCueId, setActiveCueId] = useState<string | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [remainingSeconds, setRemainingSeconds] = useState(0)
+  const [currentCueIndex, setCurrentCueIndex] = useState(0)
 
   // Segment actions
   const addSegment = useCallback((segment: Segment) => {
@@ -96,6 +99,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
     if (cues.length > 0) {
       // Get the first cue's duration
       const firstCueDuration = cues[0].duration_seconds
+      setCurrentCueIndex(0)
       setRemainingSeconds(firstCueDuration)
       setIsPlaying(true)
     }
@@ -109,6 +113,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
     activeCueId,
     isPlaying,
     remainingSeconds,
+    currentCueIndex,
     setRundown,
     setActiveRundownId,
     setSegments,
@@ -124,6 +129,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
     setActiveCueId,
     setIsPlaying,
     setRemainingSeconds,
+    setCurrentCueIndex,
     startShow,
   }
 

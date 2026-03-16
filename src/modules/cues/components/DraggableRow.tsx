@@ -24,10 +24,11 @@ interface DraggableRowProps {
   onUpdate?: (cueId: string, updates: Partial<Cue>) => void
   isCurrentCue?: boolean
   isNextCue?: boolean
+  isPassed?: boolean
   countdownSeconds?: number
 }
 
-export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdate, isCurrentCue, isNextCue, countdownSeconds }: DraggableRowProps) {
+export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdate, isCurrentCue, isNextCue, isPassed, countdownSeconds }: DraggableRowProps) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: cue.id,
   })
@@ -245,7 +246,7 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
       style={style}
       className={`${isDragging ? "relative" : "static"} bg-transparent flex gap-1 p-2 items-stretch min-h-[84px] w-full min-w-full transition-all duration-200 rounded ${
         isDragging ? "opacity-50 border-slate-600 z-10" : "border-slate-700"
-      }`}
+      } ${isPassed ? "opacity-30" : ""}`}
     >
       {/* Drag Handle */}
       <DragHandle id={cue.id} />

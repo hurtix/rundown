@@ -29,7 +29,7 @@ interface CueDataTableProps {
 }
 
 export function CueDataTable({ rundownId }: CueDataTableProps) {
-  const { cues, rundown, addCue, deleteCue: deleteCueLocal, reorderCues: reorderCuesLocal, updateCue: updateCueLocal, isPlaying, remainingSeconds, setRemainingSeconds } = useRundown()
+  const { cues, rundown, addCue, deleteCue: deleteCueLocal, reorderCues: reorderCuesLocal, updateCue: updateCueLocal, isPlaying, remainingSeconds, setRemainingSeconds, currentCueIndex, setCurrentCueIndex } = useRundown()
   const { formatSeconds, getTotalDuration } = useCueCalculations()
 
   const [data, setData] = useState<typeof cues>([])
@@ -49,6 +49,22 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
 
     return () => clearInterval(interval)
   }, [isPlaying, remainingSeconds, setRemainingSeconds])
+
+  // Auto-advance to next cue when current reaches 0
+  useEffect(() => {
+    if (!isPlaying || remainingSeconds !== 0) return
+
+    // Move to next cue
+    if (currentCueIndex < data.length - 1) {
+      const nextIndex = currentCueIndex + 1
+      const nextCue = data[nextIndex]
+      setCurrentCueIndex(nextIndex)
+      setRemainingSeconds(nextCue.duration_seconds)
+    } else {
+      // Reached the end, stop playing
+      setRemainingSeconds(0)
+    }
+  }, [remainingSeconds, isPlaying, currentCueIndex, data, setCurrentCueIndex, setRemainingSeconds])
 
   const sortableId = React.useId()
   const sensors = useSensors(
@@ -241,9 +257,10 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
                         allCues={data}
                         onDelete={() => handleDeleteCue(cue.id)}
                         onUpdate={updateCueLocal}
-                        isCurrentCue={index === 0}
-                        isNextCue={index === 1}
-                        countdownSeconds={index === 0 && isPlaying ? remainingSeconds : undefined}
+                        isCurrentCue={index === currentCueIndex}
+                        isNextCue={index === currentCueIndex + 1}
+                        isPassed={index < currentCueIndex}
+                        countdownSeconds={index === currentCueIndex && isPlaying ? remainingSeconds : undefined}
                       />
                     ))}
                   </SortableContext>
