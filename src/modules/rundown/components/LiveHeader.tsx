@@ -32,6 +32,7 @@ export default function LiveHeader({
   const { showStarted, cues, currentCueIndex, goToNextCue, goToPreviousCue } = useRundown()
   const [smoothProgress, setSmoothProgress] = useState(0)
   const [currentTime, setCurrentTime] = useState<string>("")
+  const [showEnded, setShowEnded] = useState(false)
   const lastUpdateTimeRef = useRef<number>(Date.now())
   const lastRemainingSecondsRef = useRef<number>(remainingSeconds)
 
@@ -92,6 +93,16 @@ export default function LiveHeader({
 
   const handleStartShow = () => {
     onStartShow()
+  }
+
+  const handleEndShow = () => {
+    onPlayPause() // Pause the show
+    setShowEnded(true)
+  }
+
+  const handleResetShow = () => {
+    setShowEnded(false)
+    onReset()
   }
 
   const formatDuration = (seconds: number) => {
@@ -185,16 +196,25 @@ export default function LiveHeader({
                   <SkipBack className="w-5 h-5" />
                 </button>
 
-                {currentCueIndex >= cues.length - 1 && remainingSeconds === 0 ? (
-                  // Show finished: Reset Show button
-                  <button
-                    onClick={onReset}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded flex items-center gap-2 transition-colors font-semibold text-sm"
-                  >
-                    <RotateCcw className="w-4 h-4" /> Reset Show
-                  </button>
+                {currentCueIndex >= cues.length - 1 ? (
+                  // Last cue: show End Show or Reset Show
+                  showEnded ? (
+                    <button
+                      onClick={handleResetShow}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded flex items-center gap-2 transition-colors font-semibold text-sm"
+                    >
+                      <RotateCcw className="w-4 h-4" /> Reset Show
+                    </button>
+                  ) : (
+                    <button
+                      onClick={handleEndShow}
+                      className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded flex items-center gap-2 transition-colors font-semibold text-sm"
+                    >
+                      End Show
+                    </button>
+                  )
                 ) : (
-                  // Show in progress: Pause/Resume button
+                  // Not on last cue: show Pause/Resume
                   <button
                     onClick={onPlayPause}
                     className={`px-4 py-2 rounded flex items-center gap-2 transition-colors font-semibold text-sm ${
