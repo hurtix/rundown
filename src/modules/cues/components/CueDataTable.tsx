@@ -272,9 +272,9 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
                           allCues={data}
                           onDelete={() => handleDeleteCue(cue.id)}
                           onUpdate={updateCueLocal}
-                          isCurrentCue={index === currentCueIndex}
+                          isCurrentCue={index === currentCueIndex && remainingSeconds > 0}
                           isNextCue={index === currentCueIndex + 1}
-                          isPassed={index < currentCueIndex}
+                          isPassed={index < currentCueIndex || (index === currentCueIndex && remainingSeconds === 0)}
                           countdownSeconds={index === currentCueIndex && isPlaying ? remainingSeconds : undefined}
                         />
                       </div>
