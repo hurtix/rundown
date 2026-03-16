@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum CueColor {
+  red
+  blue
+  green
+  yellow
+}
+
+model Rundown {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  event_date  DateTime?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  segments    Segment[]
+  cues        Cue[]
+}
+
+model Segment {
+  id          String   @id @default(cuid())
+  rundown_id  String
+  order       Int
+  title       String   // "INTRO", "ACTO 1", etc
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  rundown     Rundown @relation(fields: [rundown_id], references: [id], onDelete: Cascade)
+  cues        Cue[]
+
+  @@unique([rundown_id, order])
+  @@index([rundown_id])
+}
+
+model Cue {
+  id               String   @id @default(cuid())
+  rundown_id       String
+  segment_id       String?  // Foreign key a Segment (opcional)
+  order            Int
+  title            String
+  duration_seconds Int      // duración en segundos
+  color            CueColor? // Color preset para diferenciar cues
+  notes            String?
+  camera           String?
+  multimedia       String?
+  audio            String?
+  graphics         String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  rundown          Rundown @relation(fields: [rundown_id], references: [id], onDelete: Cascade)
+  segment          Segment? @relation(fields: [segment_id], references: [id], onDelete: SetNull)
+
+  @@index([rundown_id])
+  @@index([segment_id])
+  @@unique([rundown_id, order])
+}
