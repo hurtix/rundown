@@ -61,7 +61,7 @@ export default function LiveHeader({
   }, [remainingSeconds])
 
   return (
-    <header className="h-[120px] sticky top-0 z-50 bg-black/95 backdrop-blur-sm border-b border-white/20">
+    <header className="fixed top-0 left-0 right-0 h-[120px] z-50 bg-black/95 backdrop-blur-sm border-b border-white/10">
       <div className="h-full px-3 py-2 flex flex-col gap-2">
         {/* Top Row: Collapse, Timer, and Controls */}
         <div className="flex items-center gap-3">
@@ -151,7 +151,7 @@ export default function LiveHeader({
         </div>
 
         {/* Progress Bar - Fixed Gradient with Moving Indicator */}
-        <div className="relative grow flex flex-col rounded-sm overflow-hidden">
+        <div className="relative w-full flex flex-col rounded-sm overflow-hidden">
           {/* Top section - Black background for pointer visibility */}
           <div className="h-12 bg-gray-950 relative border-b border-gray-800">
             {/* Moving indicator pointer */}
@@ -166,7 +166,7 @@ export default function LiveHeader({
           </div>
           
           {/* Bottom section - Gradient thermometer bar */}
-          <div className="flex-1 bg-gradient-to-r from-emerald-500 via-amber-500 to-red-600"></div>
+          <div className="h-4 bg-gradient-to-r from-emerald-500 via-amber-500 to-red-600"></div>
         </div>
       </div>
     </header>

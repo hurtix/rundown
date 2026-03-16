@@ -178,7 +178,7 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
         {data.length > 0 ? (
           <>
             {/* Table Headers - Sticky without overflow parent */}
-            <div className="sticky top-0 z-50 bg-black overflow-x-auto">
+            <div className="sticky top-[120px] z-50 bg-black overflow-x-auto">
               <div className="min-w-max flex gap-1 p-0.5 items-center min-h-[50px] w-full">
                 {/* Drag Handle Column */}
                 <div className="w-8 flex-none" />
