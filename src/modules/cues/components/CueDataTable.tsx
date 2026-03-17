@@ -164,7 +164,8 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
 
         <button
           onClick={handleAddCue}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+          disabled={showStarted}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
         >
           <svg
             className="w-4 h-4"
@@ -188,7 +189,7 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
         {data.length > 0 ? (
           <>
             {/* Table Headers - Sticky without overflow parent */}
-            <div className="sticky top-[120px] z-50 bg-black overflow-x-auto">
+            <div className="sticky top-[120px] z-50 bg-black overflow-x-hidden scrollbar-subtle">
               <div className="min-w-max flex gap-1 p-0.5 items-center min-h-[50px] w-full">
                 {/* Drag Handle Column */}
                 <div className="w-8 flex-none" />
@@ -246,7 +247,7 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
             </div>
             
             {/* Rows Container - Only this has overflow */}
-            <div ref={scrollContainerRef} className="flex-1 overflow-x-auto overflow-y-auto">
+            <div ref={scrollContainerRef} className="flex-1 overflow-x-auto overflow-y-auto scrollbar-subtle">
               <DndContext
                 collisionDetection={closestCenter}
                 modifiers={[restrictToVerticalAxis]}
@@ -276,6 +277,7 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
                           isNextCue={showStarted && index === currentCueIndex + 1}
                           isPassed={showStarted && (index < currentCueIndex || (index === currentCueIndex && remainingSeconds === 0))}
                           countdownSeconds={showStarted && index === currentCueIndex && isPlaying ? remainingSeconds : undefined}
+                          showStarted={showStarted}
                         />
                       </div>
                     ))}
@@ -290,7 +292,8 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
               <p className="text-slate-400 mb-4">No cues yet</p>
               <button
                 onClick={handleAddCue}
-                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors"
+                disabled={showStarted}
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed transition-colors"
               >
                 Create your first cue
               </button>

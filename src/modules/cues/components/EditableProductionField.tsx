@@ -9,6 +9,7 @@ interface EditableProductionFieldProps {
   onSave: (newValue: string | null) => Promise<void>
   placeholder?: string
   availableOptions?: string[]
+  showStarted?: boolean
 }
 
 export function EditableProductionField({
@@ -16,6 +17,7 @@ export function EditableProductionField({
   onSave,
   placeholder = "Add item...",
   availableOptions = [],
+  showStarted = false,
 }: EditableProductionFieldProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [inputValue, setInputValue] = useState("")
@@ -105,7 +107,7 @@ export function EditableProductionField({
               </Badge>
             ))
           ) : (
-            <span className="text-xs text-slate-400">{placeholder}</span>
+            <span className={`text-xs text-slate-400 ${showStarted ? 'invisible' : ''}`}>{placeholder}</span>
           )}
         </div>
       ) : (

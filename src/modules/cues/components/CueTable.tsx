@@ -96,7 +96,7 @@ export default function CueTable({ rundownId }: CueTableProps) {
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto border border-gray-200 rounded-lg">
+      <div className=\"overflow-x-auto border border-gray-200 rounded-lg scrollbar-subtle\">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b">
             <tr>

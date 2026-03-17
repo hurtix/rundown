@@ -41,6 +41,7 @@ export type RundownContextType = {
   startShow: () => void
   goToNextCue: () => void
   goToPreviousCue: () => void
+  clearShowProgress: () => void
 }
 
 const RundownContext = createContext<RundownContextType | undefined>(undefined)
@@ -139,7 +140,13 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
     })
   }, [cues])
 
-  // Save progress to localStorage
+  const clearShowProgress = useCallback(() => {
+    if (!activeRundownId) return
+    const progressKey = `rundown_progress_${activeRundownId}`
+    localStorage.removeItem(progressKey)
+  }, [activeRundownId])
+
+  // Save progress to localStorage when show is active
   useEffect(() => {
     if (!activeRundownId || !showStarted) return
 
@@ -206,6 +213,7 @@ export const RundownProvider: React.FC<{ children: React.ReactNode }> = ({
     startShow,
     goToNextCue,
     goToPreviousCue,
+    clearShowProgress,
   }
 
   return (

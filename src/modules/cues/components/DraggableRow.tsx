@@ -26,9 +26,10 @@ interface DraggableRowProps {
   isNextCue?: boolean
   isPassed?: boolean
   countdownSeconds?: number
+  showStarted?: boolean
 }
 
-export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdate, isCurrentCue, isNextCue, isPassed, countdownSeconds }: DraggableRowProps) {
+export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdate, isCurrentCue, isNextCue, isPassed, countdownSeconds, showStarted }: DraggableRowProps) {
   const { transform, transition, setNodeRef, isDragging } = useSortable({
     id: cue.id,
   })
@@ -257,7 +258,7 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
       </section>
 
       {/* Title Column */}
-      <section className={`flex-1 flex items-center px-4 ${getCardBackgroundClass(cue.color)} w-[500px] rounded`}>
+      <section className={`flex-1 flex items-center px-4 ${getCardBackgroundClass(cue.color)} w-[500px] rounded ${showStarted ? 'pointer-events-none' : ''}`}>
         {isEditingTitle ? (
           <input
             autoFocus
@@ -278,7 +279,7 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
         ) : (
           <div
             className="flex items-center gap-2 min-w-0 flex-1 cursor-text hover:opacity-80 transition-opacity"
-            onClick={() => setIsEditingTitle(true)}
+            onClick={() => !showStarted && setIsEditingTitle(true)}
           >
             <div className="flex-1 min-w-0">
               <h3 className="text-sm font-semibold text-white truncate">
@@ -300,10 +301,10 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
       </section>
 
       {/* Duration Column */}
-      <section className={`w-24 flex-none flex items-center justify-center relative ${getCardBackgroundClass(cue.color)} rounded`}>
+      <section className={`w-24 flex-none flex items-center justify-center relative ${getCardBackgroundClass(cue.color)} rounded ${showStarted ? 'pointer-events-none' : ''}`}>
         <div ref={durationPickerRef} className="w-full h-full flex items-center justify-center">
           <button
-            onClick={handleOpenDurationPicker}
+            onClick={() => !showStarted && handleOpenDurationPicker()}
             className="font-mono text-sm text-white font-bold hover:opacity-80 transition-opacity cursor-pointer"
           >
             {countdownSeconds !== undefined ? formatDuration(countdownSeconds) : formatDuration(cue.duration_seconds)}
@@ -378,47 +379,51 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
       </section>
 
       {/* Camera Column */}
-      <section className={`w-48 flex-none flex items-center px-2 ${getCardBackgroundClass(cue.color)} rounded`}>
+      <section className={`w-48 flex-none flex items-center px-2 ${getCardBackgroundClass(cue.color)} rounded ${showStarted ? 'pointer-events-none' : ''}`}>
         <EditableProductionField
           value={cue.camera}
           onSave={(value) => handleSaveProductionField("camera", value)}
           placeholder="Add camera..."
           availableOptions={getAvailableOptions("camera")}
+          showStarted={showStarted}
         />
       </section>
 
       {/* Multimedia Column */}
-      <section className={`w-48 flex-none flex items-center px-2 ${getCardBackgroundClass(cue.color)} rounded`}>
+      <section className={`w-48 flex-none flex items-center px-2 ${getCardBackgroundClass(cue.color)} rounded ${showStarted ? 'pointer-events-none' : ''}`}>
         <EditableProductionField
           value={cue.multimedia}
           onSave={(value) => handleSaveProductionField("multimedia", value)}
           placeholder="Add multimedia..."
           availableOptions={getAvailableOptions("multimedia")}
+          showStarted={showStarted}
         />
       </section>
 
       {/* Audio Column */}
-      <section className={`w-48 flex-none flex items-center px-2 ${getCardBackgroundClass(cue.color)} rounded`}>
+      <section className={`w-48 flex-none flex items-center px-2 ${getCardBackgroundClass(cue.color)} rounded ${showStarted ? 'pointer-events-none' : ''}`}>
         <EditableProductionField
           value={cue.audio}
           onSave={(value) => handleSaveProductionField("audio", value)}
           placeholder="Add audio..."
           availableOptions={getAvailableOptions("audio")}
+          showStarted={showStarted}
         />
       </section>
 
       {/* Graphics Column */}
-      <section className={`w-48 flex-none flex items-center px-2 ${getCardBackgroundClass(cue.color)} rounded`}>
+      <section className={`w-48 flex-none flex items-center px-2 ${getCardBackgroundClass(cue.color)} rounded ${showStarted ? 'pointer-events-none' : ''}`}>
         <EditableProductionField
           value={cue.graphics}
           onSave={(value) => handleSaveProductionField("graphics", value)}
           placeholder="Add graphics..."
           availableOptions={getAvailableOptions("graphics")}
+          showStarted={showStarted}
         />
       </section>
 
       {/* Notes Column */}
-      <section className={`w-64 flex-none flex items-center px-2 ${getCardBackgroundClass(cue.color)} rounded`}>
+      <section className={`w-64 flex-none flex items-center px-2 ${getCardBackgroundClass(cue.color)} rounded ${showStarted ? 'pointer-events-none' : ''}`}>
         {isEditingNotes ? (
           <input
             autoFocus
@@ -440,7 +445,7 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
         ) : (
           <div
             className="flex items-center gap-2 min-w-0 flex-1 cursor-text hover:opacity-80 transition-opacity"
-            onClick={() => setIsEditingNotes(true)}
+            onClick={() => !showStarted && setIsEditingNotes(true)}
           >
             <div className="flex-1 min-w-0">
               {cue.notes ? (
@@ -456,16 +461,16 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
       </section>
 
       {/* Actions Column */}
-      <section className={`w-8 flex-none flex items-center justify-center ${getCardBackgroundClass(cue.color)} rounded transition-opacity`}>
+      <section className={`w-8 flex-none flex items-center justify-center ${getCardBackgroundClass(cue.color)} rounded transition-opacity ${showStarted ? 'pointer-events-none' : ''}`}>
         <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button className="p-2 hover:bg-black/20 rounded transition-colors">
+          <DropdownMenuTrigger asChild disabled={showStarted}>
+            <button className="p-2 hover:bg-black/20 rounded transition-colors" disabled={showStarted}>
               <MoreVertical className="w-4 h-4 text-white" />
             </button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48 bg-gray-950 border-slate-700">
             <DropdownMenuItem
-              onClick={() => setIsEditingTitle(true)}
+              onClick={() => !showStarted && setIsEditingTitle(true)}
               className="text-white hover:bg-slate-800 cursor-pointer"
             >
               Edit Title
@@ -478,27 +483,27 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
                 <div className="text-xs text-slate-400 mb-2">Change Color</div>
                 <div className="flex gap-2">
                   <button
-                    onClick={() => handleColorChange(null)}
+                    onClick={() => !showStarted && handleColorChange(null)}
                     className={`w-5 h-5 rounded border-2 transition-all ${!cue.color ? "border-white" : "border-slate-600"}`}
                     style={{ backgroundColor: "#666" }}
                   />
                   <button
-                    onClick={() => handleColorChange("red")}
+                    onClick={() => !showStarted && handleColorChange("red")}
                     className={`w-5 h-5 rounded border-2 transition-all ${cue.color === "red" ? "border-white" : "border-slate-600"}`}
                     style={{ backgroundColor: "#ef4444" }}
                   />
                   <button
-                    onClick={() => handleColorChange("blue")}
+                    onClick={() => !showStarted && handleColorChange("blue")}
                     className={`w-5 h-5 rounded border-2 transition-all ${cue.color === "blue" ? "border-white" : "border-slate-600"}`}
                     style={{ backgroundColor: "#3b82f6" }}
                   />
                   <button
-                    onClick={() => handleColorChange("green")}
+                    onClick={() => !showStarted && handleColorChange("green")}
                     className={`w-5 h-5 rounded border-2 transition-all ${cue.color === "green" ? "border-white" : "border-slate-600"}`}
                     style={{ backgroundColor: "#22c55e" }}
                   />
                   <button
-                    onClick={() => handleColorChange("yellow")}
+                    onClick={() => !showStarted && handleColorChange("yellow")}
                     className={`w-5 h-5 rounded border-2 transition-all ${cue.color === "yellow" ? "border-white" : "border-slate-600"}`}
                     style={{ backgroundColor: "#eab308" }}
                   />
@@ -509,7 +514,7 @@ export function DraggableRow({ cue, rundownStartTime, allCues, onDelete, onUpdat
             <DropdownMenuSeparator className="bg-white/30" />
 
             <DropdownMenuItem
-              onClick={() => setShowDeleteConfirm(true)}
+              onClick={() => !showStarted && setShowDeleteConfirm(true)}
               className="bg-red-600 text-white hover:bg-red-800 cursor-pointer rounded"
             >
               Delete

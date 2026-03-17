@@ -104,7 +104,7 @@ export default function LiveView({ cues }: LiveViewProps) {
       {/* Cue list with auto-scroll */}
       <div
         ref={containerRef}
-        className="flex-1 overflow-y-auto px-6 py-4"
+        className="flex-1 overflow-y-auto px-6 py-4 scrollbar-subtle"
       >
         <div className="max-w-2xl mx-auto space-y-2">
           {sortedCues.map((cue, index) => {

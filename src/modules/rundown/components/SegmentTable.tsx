@@ -238,7 +238,7 @@ export default function SegmentTable({ rundownId }: SegmentTableProps) {
 
       {/* Table */}
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <div className="overflow-x-auto border border-slate-700 rounded-lg bg-slate-900/50 backdrop-blur">
+        <div className="overflow-x-auto border border-slate-700 rounded-lg bg-slate-900/50 backdrop-blur scrollbar-subtle">
           <table className="w-full text-sm text-slate-200">
             <thead className="bg-slate-800 border-b border-slate-700 sticky top-0">
               <tr>
