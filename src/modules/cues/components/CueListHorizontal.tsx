@@ -159,7 +159,7 @@ export default function CueListHorizontal({ rundownId }: CueListHorizontalProps)
       </div>
 
       {/* Horizontal scroll container - scrollable table of rows */}
-      <div className=\"flex-1 overflow-x-auto overflow-y-auto border-t border-slate-700 scrollbar-subtle\">
+      <div className="flex-1 overflow-x-auto overflow-y-auto border-t border-slate-700 scrollbar-subtle">
         <div className="min-w-max w-max flex flex-col">
           {sortedCues.length > 0 ? (
             sortedCues.map((cue) => (

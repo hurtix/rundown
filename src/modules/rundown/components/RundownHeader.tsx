@@ -10,7 +10,7 @@ interface RundownHeaderProps {
 }
 
 export default function RundownHeader({ rundown }: RundownHeaderProps) {
-  const { startShow, setIsPlaying, isPlaying, remainingSeconds, setIsLiveMode, cues, currentCueIndex, setCurrentCueIndex, setShowStarted, clearShowProgress } = useRundown()
+  const { startShow, setIsPlaying, isPlaying, remainingSeconds, cues, currentCueIndex, setCurrentCueIndex, setShowStarted, clearShowProgress } = useRundown()
 
   const formatElapsedTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600)
