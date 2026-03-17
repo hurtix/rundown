@@ -165,7 +165,7 @@ export function CueDataTable({ rundownId }: CueDataTableProps) {
         <button
           onClick={handleAddCue}
           disabled={showStarted}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-500 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+          className="px-4 py-2 rounded flex items-center gap-2 transition-colors font-semibold text-sm bg-blue-600 hover:bg-blue-700 text-white cursor-pointer"
         >
           <svg
             className="w-4 h-4"
