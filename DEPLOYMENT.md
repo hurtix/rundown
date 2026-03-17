@@ -31,12 +31,17 @@ node -v  # Verify
 npm -v   # Verify
 ```
 
-### Install PostgreSQL
+### Install PostgreSQL (Optional - Skip if using Supabase)
 ```bash
 sudo apt install postgresql postgresql-contrib -y
 sudo systemctl start postgresql
 sudo systemctl enable postgresql
 ```
+
+**OR use Supabase (Recommended - No local DB needed)**
+- Go to [supabase.com](https://supabase.com) and create a project
+- Copy your PostgreSQL connection string from project settings
+- No local installation needed
 
 ### Install Nginx
 ```bash
@@ -63,43 +68,82 @@ sudo chown -R $USER:$USER .
 
 ## Step 3: Database Setup
 
-### Create PostgreSQL user and database
-```bash
-sudo -u postgres psql
-```
+### Option A: Supabase (Recommended - Simplest)
 
-Inside psql:
-```sql
-CREATE USER rundown_user WITH PASSWORD 'secure_password_here';
-CREATE DATABASE rundown_db OWNER rundown_user;
-GRANT ALL PRIVILEGES ON DATABASE rundown_db TO rundown_user;
-\q
-```
+1. **Create Supabase project**:
+   - Go to [supabase.com](https://supabase.com)
+   - Click "New Project"
+   - Copy your credentials:
+     - `NEXT_PUBLIC_SUPABASE_URL`
+     - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+     - `DATABASE_URL` (from project settings → Database)
 
-### Run Prisma migrations
-```bash
-cd /var/www/rundown
-npx prisma migrate deploy
-npx prisma generate
-```
+2. **Run migrations**:
+   ```bash
+   cd /var/www/rundown
+   npx prisma migrate deploy
+   npx prisma generate
+   ```
+
+3. **That's it!** Skip to Step 4. Supabase handles everything.
+
+---
+
+### Option B: Local PostgreSQL
+
+1. **Create PostgreSQL user and database**:
+   ```bash
+   sudo -u postgres psql
+   ```
+
+   Inside psql:
+   ```sql
+   CREATE USER rundown_user WITH PASSWORD 'secure_password_here';
+   CREATE DATABASE rundown_db OWNER rundown_user;
+   GRANT ALL PRIVILEGES ON DATABASE rundown_db TO rundown_user;
+   \q
+   ```
+
+2. **Run migrations**:
+   ```bash
+   cd /var/www/rundown
+   npx prisma migrate deploy
+   npx prisma generate
+   ```
 
 ## Step 4: Environment Configuration
 
-Create `.env.production` in project root:
+### For Supabase (Recommended)
+
+Create `.env.production`:
 ```bash
 cat > /var/www/rundown/.env.production << 'EOF'
-# Database
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxxxx...
+DATABASE_URL=postgresql://postgres.xxxxx:password@aws-0-us-east-1.pooler.supabase.com:6543/postgres
+
+# Application
+NODE_ENV=production
+NEXT_PUBLIC_API_URL=https://your-domain.com
+EOF
+```
+
+### For Local PostgreSQL
+
+Create `.env.production`:
+```bash
+cat > /var/www/rundown/.env.production << 'EOF'
+# Local Database
 DATABASE_URL="postgresql://rundown_user:secure_password_here@localhost:5432/rundown_db"
 
 # Application
 NODE_ENV=production
 NEXT_PUBLIC_API_URL=https://your-domain.com
-
-# (Add any other env vars your app needs)
 EOF
 ```
 
-Create `.env.local` (symlink or copy):
+### Copy to .env.local
 ```bash
 cp /var/www/rundown/.env.production /var/www/rundown/.env.local
 ```
@@ -262,7 +306,14 @@ pm2 logs rundown
 sudo tail -f /var/log/nginx/error.log
 ```
 
-**Database connection error?**
+**Database connection error (Supabase)?**
+```bash
+# Verify credentials in .env.production
+# Check Supabase project is running and accessible
+# Make sure DATABASE_URL is the "Connection Pooler" URL (not direct)
+```
+
+**Database connection error (PostgreSQL)?**
 ```bash
 # Test PostgreSQL connection
 psql -U rundown_user -d rundown_db -h localhost
@@ -277,13 +328,25 @@ kill -9 <PID>
 
 ## Production Checklist
 
+**Database Choice:**
+- [ ] Using Supabase (recommended - no local DB needed) OR
+- [ ] Using Local PostgreSQL
+
+**Server Setup:**
 - [ ] Server firewall configured (allow 80, 443)
-- [ ] PostgreSQL user with strong password
-- [ ] Environment variables set in `.env.production`
+- [ ] Node.js v18+ installed
 - [ ] Nginx reverse proxy configured
 - [ ] SSL certificate installed (HTTPS)
 - [ ] PM2 process manager running
-- [ ] Automated backups scheduled
+
+**Application:**
+- [ ] Environment variables set (Supabase or PostgreSQL credentials)
+- [ ] Migrations run: `npx prisma migrate deploy`
+- [ ] Build successful: `npm run build`
+- [ ] App running: `pm2 status`
+
+**Maintenance:**
+- [ ] Automated backups scheduled (if local PostgreSQL)
 - [ ] Monitoring/alerting in place
 - [ ] DNS pointing to server IP
 
